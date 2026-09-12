@@ -112,14 +112,16 @@ Sensacja podana jako fakt, bez linku do źródła i bez konta będącego stroną
 |-----------|-----------|
 | `OFFTOPIC_CLAIM_PATTERNS` | Temat spoza IT podany jako news (Huti, rakiety, terroryzm, szpiegostwo). Odrzucany **zawsze**, także przy `--keep-unverified` |
 | `UNSOURCED_HARD_PATTERNS` | Autor sam przyznaje, że nie wie: `reportedly`, `sources say`, `rumor`, `allegedly`, nagłówek `BREAKING:`. Jedno trafienie = odrzucenie |
-| `UNSOURCED_SOFT_PATTERNS` | Poszlaki: 🚨, `just in`, `apparently`, `users are reporting`, `huge news`. **2+ naraz** = odrzucenie |
+| `UNSOURCED_SOFT_PATTERNS` | Poszlaki: 🚨, `just in`, `apparently`, `users are reporting`, `huge news`. **3+ naraz** = odrzucenie |
 | `PRIMARY_SOURCE_ACCOUNTS` | Konta oficjalne (OpenAI, Anthropic, ich pracownicy o własnym narzędziu) — filtr ich nie dotyczy, bo są źródłem pierwotnym |
 
 > **Ograniczenie, które trzeba znać.** X skraca każdy link do `t.co`, także obrazki i cytowane tweety — z treści nie da się odróżnić linku do źródła od zdjęcia. Dlatego filtr stoi wyłącznie na języku wpisu, nie na obecności linku. Konsekwencja: news branżowy relacjonowany z drugiej ręki (afera Buckmaster/OpenAI, doniesienia o cięciu limitów Codeksa) też wypada. To świadomy wybór — `--keep-unverified` go odwraca bez edycji kodu.
 
 Nową kategorię odrzuceń widać w logu jako `bez źródła:` albo `sensacja spoza IT:`.
 
-Zmieniasz wzorce → puść backtest na `raw/` z historii: musi łapać znane reklamy i **nie ruszać** tweetów, które trafiły do `tweets/`. Stan na 2026-09-12: filtr twierdzeń bez źródła usuwa 11 z 413 wpisów historycznych, w tym wszystkie 4 clickbaity „BREAKING NEWS!".
+Zmieniasz wzorce → puść backtest na `raw/` z historii: musi łapać znane reklamy i **nie ruszać** tweetów, które trafiły do `tweets/`. Stan na 2026-09-12: filtr twierdzeń bez źródła usuwa 9 z 413 wpisów historycznych, w tym wszystkie 4 clickbaity „BREAKING NEWS!".
+
+> **Próg poszlak wynosi 3, nie 2.** Przy dwóch backtest wycinał wpisy, które źródło jednak miały — „🚨 HUGE NEWS: … Anthropic just documented how it works" o watermarku i doniesienie o limitach Codeksa oparte na pomiarze NerfTrack. Oba padały wyłącznie przez oprawę graficzną nagłówka, nie przez brak źródła. Pewna sensacja wychodzi i tak przez `UNSOURCED_HARD_PATTERNS`, które nie podlegają progowi.
 
 ## Auto-push do remote
 
