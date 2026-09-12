@@ -100,7 +100,100 @@ MANY_LINKS = 6
 # każdy wartościowy wpis z historii — najwyżej jedną.
 SOFT_SIGNALS_FOR_REJECT = 3
 
+# --- Filtr twierdzeń bez źródła ----------------------------------------------
+#
+# Problem: tweety typu "🚨 BREAKING: DeepSeek potajemnie przekierowuje zapytania
+# do Claude" albo "Huti odpalają rakiety przez Claude Code" zbierają dziesiątki
+# tysięcy polubień i lądowały w raporcie, gdzie agent opisywał je jako
+# niezweryfikowane. Czytanie takiego wpisu po to, żeby dowiedzieć się, że nie
+# wiadomo, czy to prawda, to strata czasu — filtrujemy przed raportem.
+#
+# Ograniczenie, które trzeba znać: X skraca KAŻDY link do t.co, także obrazki
+# i cytowane tweety. Nie da się z treści odróżnić linku do źródła od zdjęcia,
+# więc "ma link" nie jest sygnałem wiarygodności. Zostaje sam język wpisu.
+#
+# Wyłącznik: `--keep-unverified` nie usuwa tweeta, tylko oznacza go 🔴 w raw/
+# i zostawia decyzję agentowi (tak działał ten pipeline przed 2026-09-12).
+
+# Temat spoza IT podany jako news — odrzucamy zawsze, niezależnie od flagi.
+# Frazy dwuwyrazowe tam, gdzie pojedyncze słowo ma sens w IT: samo
+# "intelligence" to artificial intelligence, samo "strike" to strajk.
+OFFTOPIC_CLAIM_PATTERNS = [
+    r"\bhouthis?\b",
+    r"\b(hezbollah|hamas|isis|al[- ]qaeda)\b",
+    r"\bballistic\s+missiles?\b",
+    r"\b(air|drone)\s?strikes?\b",
+    r"\bterroris(t|m)\b",
+    r"\bwar\s+crimes?\b",
+    r"\bnuclear\s+weapons?\b",
+    r"\b(intelligence|spy)\s+agenc(y|ies)\b",
+    r"\bassassinat(e|ed|ion)\b",
+    r"\b(drug\s+)?cartels?\b",
+    r"\bmoney\s+laundering\b",
+]
+
+# Mocny sygnał relacji z drugiej ręki — jeden wystarczy do odrzucenia.
+# Autor sam przyznaje, że nie wie, czy to prawda.
+UNSOURCED_HARD_PATTERNS = [
+    r"\breportedly\b",
+    r"\bsources?\s+(say|said|tell|told|claim|confirm)\b",
+    r"\brumou?r(s|ed|ing)?\b",
+    r"\balleged(ly)?\b",
+    r"\bunconfirmed\b",
+    r"\bword\s+(is|on\s+the\s+street)\b",
+    r"\bi\s+heard\s+(that|from)\b",
+    r"\bno\s+official\s+(word|confirmation|statement|comment)\b",
+    # Nagłówek "BREAKING NEWS" / "BREAKING:" — w 4 z 4 przypadków z historii
+    # był clickbaitem, żaden nie trafił do raportu. Konta z
+    # PRIMARY_SOURCE_ACCOUNTS są sprawdzane wcześniej, więc oficjalna
+    # zapowiedź tym nie padnie. Dwukropek, nie samo "breaking": w zapowiedzi
+    # biblioteki "breaking changes expected" to nie sensacja.
+    r"\bbreaking\s+news\b",
+    r"\bbreaking\s*:",
+]
+
+# Słabsze poszlaki — dopiero UNSOURCED_SIGNALS_FOR_REJECT naraz.
+# "breaking" bez "news" celowo pominięte: "breaking changes expected"
+# w zapowiedzi biblioteki to nie sensacja (raw/2026-09-06).
+UNSOURCED_SOFT_PATTERNS = [
+    r"[\U0001F6A8\u203C]",  # 🚨 ‼️ — emoji-nagłówek newsa
+    r"\b(huge|big)\s+news\b",
+    r"\bjust\s+in\b",
+    r"\bapparently\b",
+    r"\bleak(ed|s|ing)\b",
+    r"\b(users?|people|everyone|they)\s+(are\s+)?(say|saying|report|reporting|claim|claiming)\b",
+    r"\bclaims?\s+(that|to\s+have)\b",
+    r"\bif\s+(this\s+is\s+)?true\b",
+]
+
+# Dwie poszlaki naraz = odrzucenie. Przy jednej ryzyko fałszywego pozytywu jest
+# realne: "apparently" pada w żartach, a 🚨 w oficjalnych zapowiedziach OpenAI.
+UNSOURCED_SIGNALS_FOR_REJECT = 2
+
+# Konto będące stroną w sprawie jest źródłem pierwotnym — filtr go nie dotyczy.
+# Ogłoszenie OpenAI o własnym produkcie nie jest plotką, nawet z 🚨 w nagłówku.
+# Dopisuj tu wyłącznie konta oficjalne (firma / pracownik mówiący o swoim
+# narzędziu), nie "zaufanych" komentatorów — inaczej lista zżera cały filtr.
+PRIMARY_SOURCE_ACCOUNTS = {
+    "openai",
+    "openaidevs",
+    "anthropicai",
+    "claudeai",
+    "claudedevs",
+    "sama",
+    "gdb",
+    "kevinweil",
+    "bcherny",
+    "alexalbert__",
+    "thsottiaux",
+    "embirico",
+    "catherineols",
+}
+
 _HARD_RE = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in HARD_REJECT_PATTERNS]
+_OFFTOPIC_RE = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in OFFTOPIC_CLAIM_PATTERNS]
+_UNSOURCED_HARD_RE = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in UNSOURCED_HARD_PATTERNS]
+_UNSOURCED_SOFT_RE = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in UNSOURCED_SOFT_PATTERNS]
 _SOFT_RE = [re.compile(p, re.IGNORECASE | re.MULTILINE) for p in SOFT_FLAG_PATTERNS]
 _LINK_RE = re.compile(r"https?://t\.co/\w+")
 
@@ -119,11 +212,47 @@ def normalize_text(text):
     )
 
 
-def classify_tweet(text, keyword, like_count, min_likes):
+def check_unverified(text, username=""):
+    """Szuka twierdzeń podanych jako fakt bez wskazania źródła.
+
+    Zwraca (kategoria, powod) albo (None, ""). Kategoria to "offtopic"
+    (temat spoza IT — odrzucamy zawsze) albo "unsourced" (relacja z drugiej
+    ręki — odrzucamy, chyba że włączono --keep-unverified).
+    """
+    low = normalize_text(text).lower()
+
+    for pattern in _OFFTOPIC_RE:
+        match = pattern.search(low)
+        if match:
+            return "offtopic", f"sensacja spoza IT: '{match.group(0).strip()}'"
+
+    # Konto oficjalne mówi o własnym produkcie — to źródło, nie plotka.
+    if username.lower().lstrip("@") in PRIMARY_SOURCE_ACCOUNTS:
+        return None, ""
+
+    for pattern in _UNSOURCED_HARD_RE:
+        match = pattern.search(low)
+        if match:
+            return "unsourced", f"relacja z drugiej ręki: '{match.group(0).strip()}'"
+
+    signals = []
+    for pattern in _UNSOURCED_SOFT_RE:
+        match = pattern.search(low)
+        if match:
+            signals.append(f"'{match.group(0).strip()[:25]}'")
+
+    if len(signals) >= UNSOURCED_SIGNALS_FOR_REJECT:
+        return "unsourced", f"{len(signals)} sygnały sensacji: " + "; ".join(signals[:3])
+
+    return None, ""
+
+
+def classify_tweet(text, keyword, like_count, min_likes, username="", keep_unverified=False):
     """Ocenia pojedynczy tweet.
 
-    Zwraca (werdykt, powód), gdzie werdykt to "ok", "flag" albo "reject".
-    Powód służy do logowania — bez niego nie da się kalibrować filtrów.
+    Zwraca (werdykt, powód), gdzie werdykt to "ok", "flag", "unverified"
+    albo "reject". Powód służy do logowania — bez niego nie da się
+    kalibrować filtrów.
     """
     norm = normalize_text(text)
     low = norm.lower()
@@ -146,6 +275,16 @@ def classify_tweet(text, keyword, like_count, min_likes):
         match = pattern.search(low)
         if match:
             return "reject", f"reklama: '{match.group(0)[:45].strip()}'"
+
+    # Twierdzenia bez źródła — przed poszlakami reklamy, bo powód odrzucenia
+    # ma w logu wskazywać realną przyczynę, a nie liczbę linków.
+    category, unverified_reason = check_unverified(norm, username)
+    if category == "offtopic":
+        return "reject", unverified_reason
+    if category == "unsourced":
+        if not keep_unverified:
+            return "reject", f"bez źródła: {unverified_reason}"
+        return "unverified", unverified_reason
 
     flags = []
     link_count = len(_LINK_RE.findall(norm))
@@ -244,21 +383,28 @@ def scrape_tweets(query, max_items=20, query_type="Top"):
         return []
 
 
-def filter_tweets(items, keyword, min_likes=20, verbose=True):
+def filter_tweets(items, keyword, min_likes=20, verbose=True, keep_unverified=False):
     """Filtruje tweety przez classify_tweet i raportuje powody odrzuceń."""
     filtered = []
     rejected = []
 
     for item in items:
+        username = item.get("author", {}).get("userName", "")
         verdict, reason = classify_tweet(
-            item.get("text", ""), keyword, item.get("likeCount", 0), min_likes
+            item.get("text", ""),
+            keyword,
+            item.get("likeCount", 0),
+            min_likes,
+            username=username,
+            keep_unverified=keep_unverified,
         )
 
         if verdict == "reject":
-            rejected.append((item.get("author", {}).get("userName", "?"), reason))
+            rejected.append((username or "?", reason))
             continue
 
         item["_bait_flag"] = reason if verdict == "flag" else ""
+        item["_unverified_flag"] = reason if verdict == "unverified" else ""
         filtered.append(item)
 
     print(f"📝 Przefiltrowano: {len(filtered)}/{len(items)} tweetów spełnia kryteria (słowo: '{keyword}', min. {min_likes} ❤️)")
@@ -275,6 +421,10 @@ def filter_tweets(items, keyword, min_likes=20, verbose=True):
     flagged = [i for i in filtered if i.get("_bait_flag")]
     for item in flagged:
         print(f"   ⚠️  @{item.get('author', {}).get('userName', '?')}: {item['_bait_flag']}")
+
+    unverified = [i for i in filtered if i.get("_unverified_flag")]
+    for item in unverified:
+        print(f"   🔴 @{item.get('author', {}).get('userName', '?')}: {item['_unverified_flag']}")
 
     return filtered
 
@@ -307,6 +457,10 @@ def format_to_markdown(items, keyword):
         # Poszlaka reklamy — agent w kroku 3 decyduje, czy wpis trafi do raportu
         if item.get("_bait_flag"):
             md += f"> ⚠️ **Możliwa reklama** ({item['_bait_flag']}) — oceń przed włączeniem do raportu.\n\n"
+        # Widoczne tylko przy --keep-unverified; normalnie takie tweety nie
+        # docierają do raw/ w ogóle.
+        if item.get("_unverified_flag"):
+            md += f"> 🔴 **Twierdzenie bez źródła** ({item['_unverified_flag']}) — domyślnie pomijaj w raporcie.\n\n"
         md += f"{text}\n\n"
         if url:
             md += f"[Link do tweeta]({url})\n"
@@ -334,6 +488,8 @@ def main():
                       help="Okno świeżości w dniach — dokleja 'since:' do zapytania, 0 wyłącza (default: 7)")
     parser.add_argument("--no-api-filter", action="store_true",
                       help="Nie doklejaj 'min_faves:' do zapytania (fallback, gdy X zwraca zbyt mało wyników)")
+    parser.add_argument("--keep-unverified", action="store_true",
+                      help="Nie odrzucaj twierdzeń bez źródła — oznacz je 🔴 w raw/ i zostaw ocenę agentowi")
 
     args = parser.parse_args()
 
@@ -360,7 +516,7 @@ def main():
 
     for keyword in keywords:
         items = scrape_tweets(f"{keyword}{query_suffix}", args.max, args.type)
-        filtered = filter_tweets(items, keyword, args.likes)
+        filtered = filter_tweets(items, keyword, args.likes, keep_unverified=args.keep_unverified)
 
         # Deduplikacja — tweet bez ID/URL przechodzi, ale nie trafia do seen
         unique_items = []

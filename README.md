@@ -36,18 +36,22 @@ Wynik trafia do dwóch folderów na poziomie roota repo:
 | `-l` | Minimalna liczba polubień | 800 |
 | `-d` | Okno świeżości w dniach (dokleja `since:` do zapytania), 0 wyłącza | 7 |
 | `--no-api-filter` | Nie doklejaj `min_faves:` do zapytania X (fallback przy zbyt małej liczbie wyników) | wyłączone |
+| `--keep-unverified` | Nie usuwaj twierdzeń bez źródła — oznacz je 🔴 w `raw/` i zostaw ocenę agentowi | wyłączone |
 
 > **Wszystkie frazy w jednym wywołaniu `-q`.** Osobne uruchomienia tego samego dnia nadpisują `raw/{data}.md` — zostaje tylko ostatnia fraza. Przebieg bez nowych tweetów **nie kasuje** istniejącego pliku.
 
-**Filtry:** próg polubień trafia wprost do zapytania X (`min_faves:`), więc odpada koszt pobierania wyników, które i tak odpadną. Dalej `classify_tweet` przyznaje każdemu tweetowi jeden z trzech werdyktów:
+**Filtry:** próg polubień trafia wprost do zapytania X (`min_faves:`), więc odpada koszt pobierania wyników, które i tak odpadną. Dalej `classify_tweet` przyznaje każdemu tweetowi werdykt:
 
 | Werdykt | Co się dzieje |
 |---------|---------------|
-| `reject` | Wypada z `raw/`. Reklama, job spam, brak frazy, ucięty retweet, treść spoza IT |
+| `reject` | Wypada z `raw/`. Reklama, job spam, brak frazy, ucięty retweet, treść spoza IT, twierdzenie bez źródła |
 | `flag` | Zostaje, ale dostaje `⚠️ Możliwa reklama` — agent ocenia w kroku 2 |
+| `unverified` | Tylko przy `--keep-unverified`: zostaje z adnotacją `🔴 Twierdzenie bez źródła` |
 | `ok` | Wchodzi bez adnotacji |
 
 Odrzucenia lądują w logu z powodem. Trzy poszlaki naraz (np. dużo linków + „save this list" + „subscribe to my") dają odrzucenie; pojedyncza tylko flagę — sama liczba linków nie świadczy o reklamie, bo kuratorowane listy repo są wartościowe. Duplikaty odsiewa `seen_tweets.json` (ostatnie 10 000 ID).
+
+**Twierdzenia bez źródła** wypadają domyślnie: sensacja podana jako fakt bez wskazania źródła (`reportedly`, `sources say`, `rumor`, nagłówek `BREAKING:`, 🚨 razem z drugą poszlaką) oraz każdy temat spoza IT podany jako news (rakiety, terroryzm, szpiegostwo). Konta z `PRIMARY_SOURCE_ACCOUNTS` — OpenAI, Anthropic i ich pracownicy mówiący o własnym narzędziu — są źródłem pierwotnym i filtr ich nie dotyczy. Ograniczenie: X skraca każdy link do `t.co`, także obrazki, więc „ma link" nie świadczy o źródle i filtr stoi wyłącznie na języku wpisu. Konsekwencja: news branżowy z drugiej ręki też wypada — `--keep-unverified` to odwraca. Szczegóły i kalibracja: [`.claude/CLAUDE.md`](.claude/CLAUDE.md).
 
 ## 🚀 Gotowce — skopiuj, wklej, gotowe
 

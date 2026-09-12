@@ -40,6 +40,7 @@ To są też domyślne wartości w `scrape.py` — samo `python scrape.py` daje t
 | `-l` | Minimalna liczba polubień | 800 |
 | `-d` | Okno świeżości w dniach (`since:` w zapytaniu), 0 wyłącza | 7 |
 | `--no-api-filter` | Nie doklejaj `min_faves:` do zapytania X | wyłączone |
+| `--keep-unverified` | Nie usuwaj twierdzeń bez źródła — oznacz je 🔴 w `raw/` | wyłączone |
 
 > **Wszystkie frazy w jednym wywołaniu `-q`.** Osobne uruchomienia tego samego dnia nadpisują `raw/{data}.md` — zostanie tylko ostatnia fraza.
 
@@ -103,7 +104,22 @@ grep -P '[\x{4e00}-\x{9fff}]' tweets/$(date +%F).md   # musi nic nie zwrócić
 
 > **Liczba linków sama w sobie nie znaczy reklamy.** Backtest wyciął nią dwa wartościowe wpisy (22 skille do Claude Code, zestaw skilli STE — oba to listy repo GitHub). Liczy się dopiero razem z innymi poszlakami.
 
-Zmieniasz wzorce → puść backtest na `raw/` z historii: musi łapać znane reklamy i **nie ruszać** tweetów, które trafiły do `tweets/`.
+### Twierdzenia bez źródła
+
+Sensacja podana jako fakt, bez linku do źródła i bez konta będącego stroną w sprawie, **nie trafia do `raw/`**. Powód: czytanie wpisu po to, żeby dowiedzieć się z komentarza agenta, że nie wiadomo, czy to prawda, jest stratą czasu.
+
+| Mechanizm | Działanie |
+|-----------|-----------|
+| `OFFTOPIC_CLAIM_PATTERNS` | Temat spoza IT podany jako news (Huti, rakiety, terroryzm, szpiegostwo). Odrzucany **zawsze**, także przy `--keep-unverified` |
+| `UNSOURCED_HARD_PATTERNS` | Autor sam przyznaje, że nie wie: `reportedly`, `sources say`, `rumor`, `allegedly`, nagłówek `BREAKING:`. Jedno trafienie = odrzucenie |
+| `UNSOURCED_SOFT_PATTERNS` | Poszlaki: 🚨, `just in`, `apparently`, `users are reporting`, `huge news`. **2+ naraz** = odrzucenie |
+| `PRIMARY_SOURCE_ACCOUNTS` | Konta oficjalne (OpenAI, Anthropic, ich pracownicy o własnym narzędziu) — filtr ich nie dotyczy, bo są źródłem pierwotnym |
+
+> **Ograniczenie, które trzeba znać.** X skraca każdy link do `t.co`, także obrazki i cytowane tweety — z treści nie da się odróżnić linku do źródła od zdjęcia. Dlatego filtr stoi wyłącznie na języku wpisu, nie na obecności linku. Konsekwencja: news branżowy relacjonowany z drugiej ręki (afera Buckmaster/OpenAI, doniesienia o cięciu limitów Codeksa) też wypada. To świadomy wybór — `--keep-unverified` go odwraca bez edycji kodu.
+
+Nową kategorię odrzuceń widać w logu jako `bez źródła:` albo `sensacja spoza IT:`.
+
+Zmieniasz wzorce → puść backtest na `raw/` z historii: musi łapać znane reklamy i **nie ruszać** tweetów, które trafiły do `tweets/`. Stan na 2026-09-12: filtr twierdzeń bez źródła usuwa 11 z 413 wpisów historycznych, w tym wszystkie 4 clickbaity „BREAKING NEWS!".
 
 ## Auto-push do remote
 

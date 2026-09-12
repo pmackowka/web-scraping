@@ -77,6 +77,11 @@ Przeczytaj `raw/{YYYY-MM-DD}.md` (data z kroku 1) i **utwórz nowy plik** `tweet
 - **Tweety oznaczone ⚠️**: skrypt wstawia do `raw/` blok `> ⚠️ **Możliwa reklama** (powód)` przy wpisach z poszlakami. **Twoja decyzja, nie automat** — oceń treść i albo pomiń tweet, albo włącz go do raportu. Sam znacznik ⚠️ i powód **nigdy nie trafiają do `tweets/`**.
   - Pomijaj: lead magnet („skomentuj X, a wyślę Ci szablon", „DM po dostęp"), niepotwierdzone statystyki podparte wezwaniem do akcji, wpisy bez treści poza obietnicą.
   - Zostawiaj: kuratorowane listy repo/skilli z konkretnymi nazwami i linkami — sama liczba linków to nie reklama. Podobnie „follow me for more" doklejone na końcu merytorycznego wpisu.
+- **Twierdzenia bez źródła — POMIJAJ**: skrypt wycina większość takich wpisów już na etapie `raw/`, ale regex łapie wzorce, nie sens. Jeśli w `raw/` trafisz na tweet, który **podaje coś jako fakt, a nie wskazuje źródła** — nie umieszczaj go w raporcie i nie opisuj go jako niezweryfikowany. Użytkownik nie chce czytać wpisu tylko po to, żeby dowiedzieć się, że nie wiadomo, czy to prawda.
+  - Pomijaj: sensacyjne doniesienia bez linku do źródła, plotki („podobno", „krążą pogłoski"), relacje z drugiej ręki o cudzych działaniach, spektakularne liczby bez odniesienia do raportu czy pomiaru, wpisy, przy których napisałbyś „traktuję to jako niezweryfikowaną plotkę".
+  - Zostawiaj: wpisy autora mówiącego o **własnej** pracy lub narzędziu (autor jest źródłem), oficjalne ogłoszenia firm, opinie i komentarze jawnie podane jako opinia, poradniki i wpisy techniczne — one niczego nie twierdzą o świecie.
+  - Test: czy komentarz w sekcji „Co to znaczy" musiałby zawierać zastrzeżenie o wiarygodności? Jeśli tak — tweet nie wchodzi do raportu.
+  - Blok `> 🔴 **Twierdzenie bez źródła**` w `raw/` (pojawia się tylko przy `--keep-unverified`) oznacza taki wpis wprost. Domyślnie go pomijasz; sam znacznik 🔴 **nigdy nie trafia do `tweets/`**.
 - **Weryfikacja pozostałych**: filtry łapią wzorce, nie sens. Cokolwiek ewidentnie spoza IT (UFO, ezoteryka, pseudonauka) pomiń, nawet bez ⚠️.
 - **Jeden plik końcowy**: `tweets/{YYYY-MM-DD}.md`, nie twórz wielu raportów.
 - **Deduplikacja**: robi ją skrypt (`seen_tweets.json`) — nie filtruj ręcznie.
