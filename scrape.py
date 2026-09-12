@@ -166,9 +166,12 @@ UNSOURCED_SOFT_PATTERNS = [
     r"\bif\s+(this\s+is\s+)?true\b",
 ]
 
-# Dwie poszlaki naraz = odrzucenie. Przy jednej ryzyko fałszywego pozytywu jest
-# realne: "apparently" pada w żartach, a 🚨 w oficjalnych zapowiedziach OpenAI.
-UNSOURCED_SIGNALS_FOR_REJECT = 2
+# Trzy poszlaki naraz = odrzucenie. Przy dwóch backtest wycinał wpisy, które
+# źródło jednak miały: "🚨 HUGE NEWS: ... Anthropic just documented how it works"
+# (watermark, 2026-08-11) i doniesienie o limitach Codeksa z pomiarem NerfTrack
+# (2026-08-21) — oba padały wyłącznie przez oprawę graficzną nagłówka.
+# Pewniaki i tak wychodzą przez UNSOURCED_HARD_PATTERNS, nie przez ten próg.
+UNSOURCED_SIGNALS_FOR_REJECT = 3
 
 # Konto będące stroną w sprawie jest źródłem pierwotnym — filtr go nie dotyczy.
 # Ogłoszenie OpenAI o własnym produkcie nie jest plotką, nawet z 🚨 w nagłówku.
