@@ -83,8 +83,8 @@ Przeczytaj `raw/{YYYY-MM-DD}.md` (data z kroku 1) i **utwórz nowy plik** `tweet
   - Test: czy komentarz w sekcji „Co to znaczy" musiałby zawierać zastrzeżenie o wiarygodności? Jeśli tak — tweet nie wchodzi do raportu.
   - Blok `> 🔴 **Twierdzenie bez źródła**` w `raw/` (pojawia się tylko przy `--keep-unverified`) oznacza taki wpis wprost. Domyślnie go pomijasz; sam znacznik 🔴 **nigdy nie trafia do `tweets/`**.
 - **Weryfikacja pozostałych**: filtry łapią wzorce, nie sens. Cokolwiek ewidentnie spoza IT (UFO, ezoteryka, pseudonauka) pomiń, nawet bez ⚠️.
-- **Jeden plik końcowy**: `tweets/{YYYY-MM-DD}.md`, nie twórz wielu raportów.
-- **Deduplikacja**: robi ją skrypt (`seen_tweets.json`) — nie filtruj ręcznie.
+- **Jeden raport na dzień**: `tweets/{YYYY-MM-DD}.md`, nie twórz wielu raportów (skrót powstaje osobno, w kroku 4).
+- **Deduplikacja**: duplikaty ID odsiewa skrypt (`seen_tweets.json`) — nie sprawdzaj tego ręcznie. Możesz natomiast pominąć wpis, który powtarza temat już opisany w poprzednich raportach i nie wnosi nowej informacji (np. kolejna reakcja na ten sam produkt).
 
 ## Krok 4: Skrót (digest/{data}.md)
 

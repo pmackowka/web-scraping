@@ -1,6 +1,6 @@
 # Web Scraping
 
-Dzienny scraping tweetów z X (Twitter) przez Apify API + raport po polsku z komentarzem „co to znaczy" do każdego wpisu.
+Dzienny scraping tweetów z X (Twitter) przez Apify API + raport po polsku z komentarzem „co to znaczy" do każdego wpisu + skrót najważniejszych wydarzeń z linkami.
 
 ## Instalacja
 
@@ -67,13 +67,13 @@ Pełny przebieg: scraping → raport po polsku → skrót → commit → push. N
 ### OpenCode / Codex
 
 ```
-Korzystając ze skilla `scraper` (/Users/p/Documents/dev/Web-Scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla domyślnych fraz. Raport w języku polskim zapisz w /Users/p/Documents/dev/Web-Scraping/tweets/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
+Korzystając ze skilla `scraper` (/Users/p/Documents/dev/Web-Scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla domyślnych fraz. Raport w języku polskim zapisz w /Users/p/Documents/dev/Web-Scraping/tweets/, a skrót w /Users/p/Documents/dev/Web-Scraping/digest/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
 ```
 
 ### Własne frazy (dowolne narzędzie)
 
 ```
-Korzystając ze skilla `scraper` (/Users/p/Documents/dev/Web-Scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla fraz [Claude Code, MCP, dbt]. Raport w języku polskim zapisz w /Users/p/Documents/dev/Web-Scraping/tweets/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
+Korzystając ze skilla `scraper` (/Users/p/Documents/dev/Web-Scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla fraz [Claude Code, MCP, dbt]. Raport w języku polskim zapisz w /Users/p/Documents/dev/Web-Scraping/tweets/, a skrót w /Users/p/Documents/dev/Web-Scraping/digest/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
 ```
 
 ### Sam scraping, bez raportu (terminal)

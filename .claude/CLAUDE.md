@@ -46,7 +46,7 @@ To są też domyślne wartości w `scrape.py` — samo `python scrape.py` daje t
 
 ## Data bieżąca
 
-Sprawdź przed startem: `date +%Y-%m-%d`. Nazwy plików (`raw/{YYYY-MM-DD}.md`, `tweets/{YYYY-MM-DD}.md`) muszą używać dzisiejszej daty — inaczej agent czyta inny plik, niż skrypt zapisał.
+Sprawdź przed startem: `date +%Y-%m-%d`. Nazwy plików (`raw/{YYYY-MM-DD}.md`, `tweets/{YYYY-MM-DD}.md`, `digest/{YYYY-MM-DD}.md`) muszą używać dzisiejszej daty — inaczej agent czyta inny plik, niż skrypt zapisał.
 
 ## Środowisko
 
@@ -76,12 +76,12 @@ Nazwa pliku to sama data — folder już mówi, czy to dane surowe, pełny rapor
 
 ## Język — POLSKI
 
-Wszystkie pliki `tweets-*.md` po polsku (poza nazwami własnymi i datami systemowymi). Sekcja „Co to znaczy" musi mieć **3-4 pełne zdania**, bez sztucznego dopychania objętości na tweetach bez realnej treści. To najczęstszy błąd agentów.
+Wszystkie pliki w `tweets/` i `digest/` po polsku (poza nazwami własnymi i datami systemowymi). Sekcja „Co to znaczy" w `tweets/` musi mieć **3-4 pełne zdania**, bez sztucznego dopychania objętości na tweetach bez realnej treści. To najczęstszy błąd agentów.
 
 **Zero znaków CJK w polskim tekście.** Modele wstawiają chińskie słowa w środek zdania (`潜在nie`, `warto密切关注`, `czy数据分析`) — znaleziono to w 10 raportach i naprawiono 2026-07-14. Sprawdź przed commitem:
 
 ```bash
-grep -P '[\x{4e00}-\x{9fff}]' tweets/$(date +%F).md   # musi nic nie zwrócić
+grep -P '[\x{4e00}-\x{9fff}]' tweets/$(date +%F).md digest/$(date +%F).md   # musi nic nie zwrócić
 ```
 
 ## Deduplikacja i filtry
