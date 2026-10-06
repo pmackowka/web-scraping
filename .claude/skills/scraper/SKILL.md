@@ -1,6 +1,6 @@
 ---
 name: scraper
-description: Scrapuje tweety z X (Twitter) przez Apify i generuje dzienny raport po polsku w tweets/{data}.md. Używaj, gdy użytkownik prosi o pobranie tweetów, scraping X, nowe tweety lub dzienny raport.
+description: Scrapuje tweety z X (Twitter) przez Apify i generuje dzienny raport po polsku w tweets/{data}.md oraz skondensowany skrót w digest/{data}.md. Używaj, gdy użytkownik prosi o pobranie tweetów, scraping X, nowe tweety, dzienny raport lub skrót.
 ---
 
 # scraper
@@ -86,7 +86,29 @@ Przeczytaj `raw/{YYYY-MM-DD}.md` (data z kroku 1) i **utwórz nowy plik** `tweet
 - **Jeden plik końcowy**: `tweets/{YYYY-MM-DD}.md`, nie twórz wielu raportów.
 - **Deduplikacja**: robi ją skrypt (`seen_tweets.json`) — nie filtruj ręcznie.
 
-## Krok 4: Commit i push
+## Krok 4: Skrót (digest/{data}.md)
+
+Na podstawie wpisów, które trafiły do `tweets/{YYYY-MM-DD}.md` w kroku 3 — **ta sama selekcja, nie oceniaj ponownie reklam ani źródeł** — utwórz `digest/{YYYY-MM-DD}.md`: jedną, połączoną (bez podziału na frazy), ponumerowaną listę najważniejszych wydarzeń z całego dnia, posortowaną według wagi, nie chronologii ani frazy.
+
+```markdown
+# Skrót — YYYY-MM-DD
+
+1. Opis zdarzenia w jednym zdaniu, po polsku. (@autor) [Link](URL)
+2. ...
+```
+
+### Zasady
+
+- **Jedna linijka na pozycję** — żadnego akapitu „Co to znaczy", żadnego tłumaczenia pełnej treści tweeta. To kondensacja, nie kolejny raport.
+- **Zawsze link do oryginalnego tweeta** — to główny sens tego pliku: szybki powrót do źródła, gdy coś wymaga głębszej analizy.
+- **Maks. 12 pozycji.** Źródłem jest `tweets/{data}.md` — wybierz z niego wpisy o największej wadze (premiery produktów, zmiany cen/limitów, bezpieczeństwo, istotne opinie uznanych osób). Pomiń drobne anegdoty i czysto rozrywkowe wpisy, nawet jeśli są w pełnym raporcie.
+- **Kolejność = ranking wagi**, nie kolejność z `tweets/` ani podział na frazy Claude Code / Codex.
+- **Zero znaków CJK** — ta sama kontrola co w `tweets/`:
+  ```bash
+  grep -P '[\x{4e00}-\x{9fff}]' digest/$(date +%F).md   # musi nic nie zwrócić
+  ```
+
+## Krok 5: Commit i push
 
 Push jest obowiązkowy — użytkownik czyta raporty z aplikacji Git na telefonie.
 
@@ -95,6 +117,6 @@ cd /Users/p/Documents/dev/Web-Scraping && git add -A && \
   git commit -m "tweets YYYY-MM-DD: <3-5 słów o głównych trendach>" && git push
 ```
 
-## Krok 5: Podsumowanie w czacie
+## Krok 6: Podsumowanie w czacie
 
-Po pushu pokaż użytkownikowi krótkie podsumowanie: ile tweetów, jakie trendy, ścieżka do raportu.
+Po pushu pokaż użytkownikowi krótkie podsumowanie: ile tweetów, jakie trendy, ścieżka do pełnego raportu i ścieżka do skrótu.
