@@ -21,10 +21,11 @@ python scrape.py                              # domyślne frazy i próg
 python scrape.py -q "AI" "MCP" -l 300         # własne frazy
 ```
 
-Wynik trafia do dwóch folderów na poziomie roota repo:
+Wynik trafia do trzech folderów na poziomie roota repo:
 
 - `raw/{YYYY-MM-DD}.md` — surowe dane po angielsku (etap 1)
 - `tweets/{YYYY-MM-DD}.md` — **raport końcowy**, po polsku, z komentarzami (etap 2, robi go agent)
+- `digest/{YYYY-MM-DD}.md` — skrót: numerowana lista najważniejszych wydarzeń z linkami, bez komentarzy (etap 3, robi go agent)
 
 ### Parametry `scrape.py`
 
@@ -55,7 +56,7 @@ Odrzucenia lądują w logu z powodem. Trzy poszlaki naraz (np. dużo linków + �
 
 ## 🚀 Gotowce — skopiuj, wklej, gotowe
 
-Pełny przebieg: scraping → raport po polsku → commit → push. Nic więcej nie trzeba dopisywać.
+Pełny przebieg: scraping → raport po polsku → skrót → commit → push. Nic więcej nie trzeba dopisywać.
 
 ### Claude Code
 

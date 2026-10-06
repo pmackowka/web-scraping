@@ -54,23 +54,25 @@ Sprawdź przed startem: `date +%Y-%m-%d`. Nazwy plików (`raw/{YYYY-MM-DD}.md`, 
 
 ## Struktura folderów
 
-Dwa foldery na poziomie roota repo (nie zagnieżdżone w `output/` — jedna ścieżka mniej do kliknięcia w apce Git na telefonie):
+Trzy foldery na poziomie roota repo (nie zagnieżdżone w `output/` — jedna ścieżka mniej do kliknięcia w apce Git na telefonie):
 
 ```
 raw/{YYYY-MM-DD}.md      # surowe dane po angielsku (etap 1, scrape.py)
 tweets/{YYYY-MM-DD}.md   # raport po polsku (etap 2, robi go agent)
+digest/{YYYY-MM-DD}.md   # skrót — numerowana lista najważniejszych wydarzeń z linkami (etap 3, robi go agent)
 ```
 
-Nazwa pliku to sama data — folder już mówi, czy to dane surowe czy gotowy raport.
+Nazwa pliku to sama data — folder już mówi, czy to dane surowe, pełny raport czy skrót.
 
 > Data jako nazwa pliku sortuje chronologicznie, ale alfabetycznie rosnąco = najnowszy plik na **dole** listy, nie na górze. Jeśli aplikacja Git na telefonie nie ma opcji sortowania „ostatnio zmienione", to obecnie jedyny sposób na najnowszy raport na górze.
 
-## Dwuetapowy pipeline
+## Trzyetapowy pipeline
 
 1. `scrape.py` → `raw/{data}.md` — surowe dane po angielsku
 2. Skill `scraper` (`.claude/skills/scraper/SKILL.md`) → `tweets/{data}.md` — tłumaczenie + komentarze po polsku
+3. Skill `scraper` → `digest/{data}.md` — kondensacja `tweets/{data}.md` do krótkiej, numerowanej listy najważniejszych wydarzeń z linkami
 
-**Skill jest autorytatywnym opisem workflow — przeczytaj go przed generowaniem raportu.**
+**Skill jest autorytatywnym opisem workflow — przeczytaj go przed generowaniem raportu i skrótu.**
 
 ## Język — POLSKI
 
@@ -125,7 +127,7 @@ Zmieniasz wzorce → puść backtest na `raw/` z historii: musi łapać znane re
 
 ## Auto-push do remote
 
-Po utworzeniu plików w `raw/` lub `tweets/` **zawsze**: `git add -A`, commit z opisem, `git push`. Użytkownik czyta raporty z aplikacji Git na telefonie — bez pusha raport dla niego nie istnieje. Dotyczy też zmian w tym pliku, `SKILL.md`, `README.md` i `scrape.py`.
+Po utworzeniu plików w `raw/`, `tweets/` lub `digest/` **zawsze**: `git add -A`, commit z opisem, `git push`. Użytkownik czyta raporty z aplikacji Git na telefonie — bez pusha raport dla niego nie istnieje. Dotyczy też zmian w tym pliku, `SKILL.md`, `README.md` i `scrape.py`.
 
 ## Czego nie ma
 
