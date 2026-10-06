@@ -1,6 +1,6 @@
 # scrape
 
-Pobierz nowe tweety z X i wygeneruj dzienny raport po polsku.
+Pobierz nowe tweety z X i wygeneruj dzienny raport po polsku oraz skrót.
 
 Wykonaj workflow opisany w skillu `scraper` (`.claude/skills/scraper/SKILL.md`) — to autorytatywne źródło procedury: scraping → raport po polsku → skrót → commit → push.
 
