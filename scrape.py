@@ -22,6 +22,9 @@ except ImportError:
 load_dotenv()
 
 ACTOR_ID = "kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest"
+# Bez parametru build — Apify bierze domyślny build actora (1.0.x). NIE ustawiaj
+# build="latest": u tego actora tag latest wskazuje stary build 0.0.68, który
+# pada przy starcie (sprawdzone 2026-10-22, mimo maila autora zalecającego latest).
 RAW_DIR = Path(__file__).parent / "raw"
 RAW_DIR.mkdir(exist_ok=True)
 SEEN_TWEETS_FILE = Path(__file__).parent / "seen_tweets.json"
