@@ -67,19 +67,19 @@ Pełny przebieg: scraping → raport po polsku → skrót → commit → push. N
 ### OpenCode / Codex
 
 ```
-Korzystając ze skilla `scraper` (/Users/p/Documents/dev/Web-Scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla domyślnych fraz. Raport w języku polskim zapisz w /Users/p/Documents/dev/Web-Scraping/tweets/, a skrót w /Users/p/Documents/dev/Web-Scraping/digest/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
+Korzystając ze skilla `scraper` (/Users/p/Documents/dev/web-scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla domyślnych fraz. Raport w języku polskim zapisz w /Users/p/Documents/dev/web-scraping/tweets/, a skrót w /Users/p/Documents/dev/web-scraping/digest/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
 ```
 
 ### Własne frazy (dowolne narzędzie)
 
 ```
-Korzystając ze skilla `scraper` (/Users/p/Documents/dev/Web-Scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla fraz [Claude Code, MCP, dbt]. Raport w języku polskim zapisz w /Users/p/Documents/dev/Web-Scraping/tweets/, a skrót w /Users/p/Documents/dev/Web-Scraping/digest/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
+Korzystając ze skilla `scraper` (/Users/p/Documents/dev/web-scraping/.claude/skills/scraper/SKILL.md), pobierz nowe tweety z serwisu X dla fraz [Claude Code, MCP, dbt]. Raport w języku polskim zapisz w /Users/p/Documents/dev/web-scraping/tweets/, a skrót w /Users/p/Documents/dev/web-scraping/digest/. Po zapisaniu plików dodaj je do repozytorium git, zrób commit i push do GitHuba.
 ```
 
 ### Sam scraping, bez raportu (terminal)
 
 ```bash
-cd /Users/p/Documents/dev/Web-Scraping && source venv/bin/activate && python scrape.py
+cd /Users/p/Documents/dev/web-scraping && source venv/bin/activate && python scrape.py
 ```
 
 Daje tylko surowy `raw/{data}.md` po angielsku — tłumaczenie i komentarze robi agent.

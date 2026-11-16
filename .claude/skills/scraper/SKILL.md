@@ -23,13 +23,13 @@ Sprawdź, czy istnieje `.env` z `APIFY_API_TOKEN` (szablon: `config.example.env`
 Domyślne frazy i próg polubień:
 
 ```bash
-cd /Users/p/Documents/dev/Web-Scraping && source venv/bin/activate && python scrape.py
+cd /Users/p/Documents/dev/web-scraping && source venv/bin/activate && python scrape.py
 ```
 
 Jeśli użytkownik podał własne frazy — wszystkie w jednym `-q`:
 
 ```bash
-cd /Users/p/Documents/dev/Web-Scraping && source venv/bin/activate && python scrape.py -q "fraza A" "fraza B"
+cd /Users/p/Documents/dev/web-scraping && source venv/bin/activate && python scrape.py -q "fraza A" "fraza B"
 ```
 
 > Nigdy nie uruchamiaj skryptu osobno dla każdej frazy — każde wywołanie nadpisuje `raw/{data}.md` i zostaje tylko ostatnia fraza.
@@ -113,7 +113,7 @@ Na podstawie wpisów, które trafiły do `tweets/{YYYY-MM-DD}.md` w kroku 3 — 
 Push jest obowiązkowy — użytkownik czyta raporty z aplikacji Git na telefonie.
 
 ```bash
-cd /Users/p/Documents/dev/Web-Scraping && git add -A && \
+cd /Users/p/Documents/dev/web-scraping && git add -A && \
   git commit -m "tweets YYYY-MM-DD: <3-5 słów o głównych trendach>" && git push
 ```
 

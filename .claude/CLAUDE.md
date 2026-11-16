@@ -5,7 +5,7 @@ Dzienny scraping tweetów z X (Apify) + raport po polsku. Ten plik jest jedynym 
 ## Kto co czyta (setup multi-agent)
 
 ```
-Web-Scraping/
+web-scraping/
 ├── AGENTS.md → .claude/CLAUDE.md      # SYMLINK  (czyta: Codex, OpenCode)
 ├── .claude/
 │   ├── CLAUDE.md                      # ★ REALNY — ten plik
@@ -26,7 +26,7 @@ Uwaga: konfiguracja (uprawnienia, MCP) **nie jest** współdzielona między narz
 Dwie frazy, jedno wywołanie, próg 800 polubień:
 
 ```bash
-cd /Users/p/Documents/dev/Web-Scraping && source venv/bin/activate && \
+cd /Users/p/Documents/dev/web-scraping && source venv/bin/activate && \
   python scrape.py -q "Claude Code" "Codex" -m 10 -t Top -l 800 -d 7
 ```
 
