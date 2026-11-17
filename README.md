@@ -1,4 +1,4 @@
-# Web Scraping
+# web-scraping
 
 Dzienny scraping tweetów z X (Twitter) przez Apify API + raport po polsku z komentarzem „co to znaczy" do każdego wpisu + skrót najważniejszych wydarzeń z linkami.
 
