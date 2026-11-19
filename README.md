@@ -1,5 +1,7 @@
 # web-scraping
 
+[![License: MIT](https://img.shields.io/github/license/pmackowka/web-scraping)](LICENSE)
+
 Dzienny scraping tweetów z X (Twitter) przez Apify API + raport po polsku z komentarzem „co to znaczy" do każdego wpisu + skrót najważniejszych wydarzeń z linkami.
 
 ## Instalacja
